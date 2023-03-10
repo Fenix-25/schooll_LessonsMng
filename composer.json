@@ -1,0 +1,20 @@
+{
+  "description": "description",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "serqd",
+      "email": "email@example.com"
+    }
+  ],
+  "require": {
+    "larapack/dd": "*",
+    "ext-pdo": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "App\\" : "App/"
+    }
+  }
+}
