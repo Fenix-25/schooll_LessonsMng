@@ -4,13 +4,6 @@ namespace App\Services;
 
 class Redirect
 {
-    public static string $refer;
-
-    public function __construct()
-    {
-        return self::$refer = $_SERVER['HTTP_REFERER'];
-    }
-
     public static function rdtWithCondition($condition, $msg, $path = "/"): void
     {
         if ($condition) {

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Services;
 
@@ -6,39 +6,89 @@ use PDO;
 
 class DB
 {
-    public static function insert($table, array $data): void
-    {
-        $query = "insert into " . $table . self::prepareValue($data)['key'] . " values" . self::prepareValue($data)['value'];
-        $insert = DB::connect()->prepare($query);
-        foreach ($data as $key => $value) {
-            $insert->bindValue(":" . $key, $value);
-        }
-        $insert->execute();
-    }
+	public mixed $query;
+	public mixed $where = null;
+	public mixed $order = null;
 
-    public static function prepareValue(array $data): array
-    {
-        $res['key'] = "(" . htmlspecialchars(implode(', ', array_keys(($data)))) . ")";
-        $res['value'] = "( :" . htmlspecialchars(implode(', :', array_keys(($data)))) . ")";
-        return $res;
-    }
+	public function insert($table, array $data): void
+	{
+		$query = "insert into " . $table . self::prepareValue($data)['key'] . " values" . self::prepareValue($data)['value'];
+		$this->query = DB::connect()->prepare($query);
+		foreach ($data as $key => $value) {
+			$this->query->bindValue(":" . $key, $value);
+		}
+		$this->query->execute();
+	}
 
-    public static function connect(): PDO
-    {
-        $config = require_once 'config/db.php';
-            $pdo = new PDO("mysql:host={$config['host']};dbname={$config['db_name']};port=3306", "root", "");
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            return $pdo;
-    }
+	public static function prepareValue(array $data): array
+	{
+		$res['key'] = "(" . htmlspecialchars(implode(', ', array_keys(($data)))) . ")";
+		$res['value'] = "( :" . htmlspecialchars(implode(', :', array_keys(($data)))) . ")";
+		return $res;
+	}
 
-    public static function select($table, $row = "*", $condition = "", $isSingle = false)
-    {
-        //select * from users where id=1
-        $query = "select {$row} from {$table}";
-        $query .= $condition ? " where $condition" : "";
-        $select = DB::connect()->prepare($query);
-        $select->execute();
-        return $isSingle ? $select->fetch(PDO::FETCH_ASSOC) : $select->fetchAll(PDO::FETCH_ASSOC);
-    }
+	public function connect(): PDO
+	{
+		$pdo = new PDO(DSN, USER, PASSWORD, OPTIONS);
+		$pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+		return $pdo;
+	}
+
+	public function update($table, array $data, $where): void
+	{
+		$set = '';
+		foreach ($data as $key => $value) {
+			$set .= "{$key}=:{$key},";
+		}
+		$set = rtrim($set, ',');
+		$query = "UPDATE $table SET $set WHERE $where";
+		$this->query = DB::connect()->prepare($query);
+
+		foreach ($data as $key => $value) {
+			$this->query->bindValue(":" . $key, $value);
+		}
+
+		$this->query->execute();
+	}
+
+	public function select($table, $row = "*"): static
+	{
+		//select * from users where id=1
+		$query = "select {$row} from {$table}";
+		$this->where && $query .= " where {$this->where} ";
+		$this->order && $query .= " order by {$this->order}";
+		$this->query = DB::connect()->prepare($query);
+		$this->query->execute();
+		return $this;
+	}
+
+	public function where($where):static
+	{
+		$this->where = $where;
+		return $this;
+	}
+
+	public function order($orderBy): static
+	{
+		$this->order = $orderBy;
+		return $this;
+	}
+
+	public function raw($query): static
+	{
+		$this->query = DB::connect()->prepare($query);
+		$this->query->execute();
+		return $this;
+	}
+
+	public function get()
+	{
+		return $this->query->fetch(PDO::FETCH_ASSOC);
+	}
+
+	public function all()
+	{
+		return $this->query->fetchAll(PDO::FETCH_ASSOC);
+	}
 
 }

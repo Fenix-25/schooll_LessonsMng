@@ -1,6 +1,7 @@
 <?php
 
 use App\Services\Page;
+use App\Services\Session;
 
 Page::part('header', ['title' => 'Register'])
 ?>
@@ -15,16 +16,36 @@ Page::part('header', ['title' => 'Register'])
             <div class="col-md-10 mx-auto col-lg-5">
                 <form class="p-4 p-md-5 border rounded-3 bg-light" action="auth/register" method="post" enctype="multipart/form-data">
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="name" placeholder="Name" name="name">
+                        <input type="text" class="form-control" id="name" placeholder="Name" name="name" value="<?= Session::tmp('name') ?>">
                         <label for="name">Name</label>
                     </div>
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email">
+                        <input type="email" class="form-control" id="email" placeholder="name@example.com" name="email" value="<?= Session::tmp('email') ?>">
                         <label for="email">Email address</label>
                     </div>
                     <div class="input-group mb-3">
                         <label class="input-group-text" for="image">Upload</label>
                         <input type="file" class="form-control" id="image" name="avatar">
+                    </div>
+                    or
+                    <div class="input-group mb-3">
+                        <label class="input-group-text" for="image">Url to img</label>
+                        <input type="text" class="form-control" id="image" name="avatar">
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="text" max="11" min="1" class="form-control" id="Login" placeholder="Login"
+                               name="login" value="<?= Session::tmp('login') ?>">
+                        <label for="Login">Enter your login</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="number" max="11" min="1" class="form-control" id="Class" placeholder="Class"
+                               name="class" value="<?= Session::tmp('class') ?>">
+                        <label for="Class">Enter your class</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="date" class="form-control" id="birthday" placeholder="birthday"
+                               name="birthday" value="<?= Session::tmp('birthday') ?>">
+                        <label for="birthday">Enter your birthday</label>
                     </div>
                     <div class="form-floating mb-3">
                         <input type="password" class="form-control" id="floatingPassword" placeholder="Password"
